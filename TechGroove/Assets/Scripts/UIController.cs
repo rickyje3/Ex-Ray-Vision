@@ -1,0 +1,96 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System.Linq;
+using UnityEngine.UI;
+using TMPro;
+
+public class UIController : MonoBehaviour
+{
+public DeserializeAPResults APResults;
+public GameObject MagicNovaBlue;
+public GameObject MagicNovaGreen;
+public GameObject MagicNovaYellow;
+public List<GameObject> visualizations;
+public Text labelPrefab;
+
+public void visualizeOnClick()
+{                          //Script    Class in the script   Array from json     
+
+    if(visualizations.Count() > 0)
+    {
+        foreach(GameObject visualization in visualizations)
+        {
+            Destroy(visualization);
+        }
+    }
+        
+    List<APResult> results = APResults.DeserializedAPResults.APResults.ToList();
+
+    foreach(APResult result in results)
+    {
+        if(result.signal < -60)
+        {
+            GameObject nova = Instantiate(MagicNovaBlue, new Vector3(Random.Range(-50, 50), 0, Random.Range(-50, 50)), Quaternion.identity);
+            visualizations.Add(nova);
+            nova.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = "Name: " + result.ssid.ToString() + "\n" + "Signal: " + result.signal.ToString() + "\n" + "Encryption: " + result.encryption.ToString() + "\n" + "Channel:" + result.channel.ToString() + "\n" + "Hidden: " + result.hidden.ToString();
+        }
+        else if(result.signal < -50)
+        {
+            GameObject nova = Instantiate(MagicNovaGreen, new Vector3(Random.Range(-50, 50), 0, Random.Range(-50, 50)), Quaternion.identity);
+            visualizations.Add(nova);
+            nova.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = "Name: " + result.ssid.ToString() + "\n" + "Signal: " + result.signal.ToString() + "\n" + "Encryption: " + result.encryption.ToString() + "\n" + "Channel:" + result.channel.ToString() + "\n" + "Hidden: " + result.hidden.ToString();
+        }
+        else
+        {
+            GameObject nova = Instantiate(MagicNovaYellow, new Vector3(Random.Range(-50, 50), 0, Random.Range(-50, 50)), Quaternion.identity);
+            visualizations.Add(nova);
+            nova.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = "Name: " + result.ssid.ToString() + "\n" + "Signal: " + result.signal.ToString() + "\n" + "Encryption: " + result.encryption.ToString() + "\n" + "Channel:" + result.channel.ToString() + "\n" + "Hidden: " + result.hidden.ToString();
+        }
+    }
+
+}
+
+public void rtScanOnClick()
+{
+    APResults.RTScan();
+}
+
+public void label()
+{
+    foreach (GameObject visualization in visualizations)
+    {
+    // Instantiate a label for each visualization
+        Text label = Instantiate(labelPrefab, visualization.transform.position, Quaternion.identity);
+        label.transform.SetParent(visualization.transform); // Make the label a child of the visualization
+        label.text = GetLabelFromAPResult(visualization); // Set the label's text based on APResult data
+    }
+}
+
+private string GetLabelFromAPResult(GameObject visualization)
+{
+    // You need to associate each visualization with the corresponding APResult data.
+    // You can do this using a unique identifier, such as a name or tag.
+    // Here, we assume that each visualization has a unique name corresponding to an APResult.
+
+    string visualizationName = visualization.name;
+    APResult result = APResults.DeserializedAPResults.APResults.FirstOrDefault(r => r.ssid == visualizationName);
+
+    if (result != null)
+    {
+        // Customize the label text based on the APResult data
+        return $"Signal: {result.signal}";
+    }
+    else
+    {
+        return "Label Not Found";
+    }
+}
+
+
+public void menuToggleOnClick()
+{
+
+}
+
+}
